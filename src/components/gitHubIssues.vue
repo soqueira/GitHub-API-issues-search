@@ -6,7 +6,8 @@
       <input v-model="username" type="text" placeholder="gitHub username" />
       <input v-model="repository" type="text" placeholder="github repositório" />
       <button @click.prevent.stop="getIssues()" class="btn btn-success">Procurar</button>
-      <button @click.prevent.stop="reset()" class="btn btn-danger">Limpar</button>
+                                  <!-- clicking the reset will "clear" the localStorage-->
+      <button @click.prevent.stop="reset() || getDataStore()" class="btn btn-danger">Limpar</button>
     </div>
     <table class="table table-sm table-bordered">
       <thead>
@@ -43,6 +44,9 @@
 import axios from "axios";
 export default {
   name: "gitHubIssues",
+  created() {
+    this.initLocalStore();
+  },
   data() {
     return {
       username: "",
@@ -64,8 +68,10 @@ export default {
       this.notFind = false;
     },
     getIssues() {
+      this.getDataStore()
       if (!this.username && !this.repository) {
         this.notFind = true;
+        this.issues = [];
         return;
       }
       this.loader.getIssues = true;
@@ -75,7 +81,6 @@ export default {
         .then(res => {
           this.issues = res.data;
           this.notFind = false;
-          console.log(this.issues);
         })
         .catch(error => {
           this.notFind = true;
@@ -83,6 +88,20 @@ export default {
         .finally(() => {
           this.loader.getIssues = false;
         });
+    },
+    getDataStore(){
+       const dataStorage = {
+        username: this.username,
+        repository: this.repository
+      };
+      localStorage.setItem("gitHubIssues", JSON.stringify(dataStorage));
+    },
+    initLocalStore() {
+      const localData = JSON.parse(localStorage.getItem("gitHubIssues"));
+      if (!localData.username || !localData.repository) return;
+      this.username = localData.username;
+      this.repository = localData.repository;
+      this.getIssues();
     }
   }
 };

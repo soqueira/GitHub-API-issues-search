@@ -1,8 +1,5 @@
 <template>
   <div id="app">
-    <nav class="navbar navbar-dark bg-dark">
-      <a href="#" class="navbar-brand">Nav</a>
-    </nav>
     <router-view></router-view>
   </div>
 </template>
